@@ -19,16 +19,58 @@ int main(int argc, char *argv[])
 {
 	int fd = -1;
 	int baudrate = 9600;  // default
+	float temperaturas[12];
+	float humedades[12];
+	int minT = 100;
+	int maxT = 0;
+	int minH = 100;
+	int maxH = 0;
 
 	fd = serialport_init("/dev/ttyACM0", baudrate);
 
 	if( fd==-1 )
 	{
-		error("couldn't open port");
+		error("Couldn't open port");
 		return -1;
 	}
-
 	
+	int i = 0;
+	char t = 't';
+	char h = 'h';
+
+	while(i<12){
+		int temp = 0;
+		write(fd,&t,1);
+		read(fd,&temp,1);
+		temperaturas[i] = (float)temp;
+		printf("Temperatura: %d\n",temp);
+		usleep(500000);
+		if (temp<minT)
+			minT=temp;
+		if (temp>maxT)
+			maxT=temp;
+
+		int hum = 0;
+		write(fd,&h,1);
+		read(fd,&hum,1);
+		humedades[i] = (float)hum;
+		printf("Humedad: %d\n",hum);
+		i++;
+		if (hum<minH)
+			minH=hum;
+		if (hum>maxH)
+			maxH=hum;
+		
+	}
+	
+	float desviacionT = calculateSD(temperaturas);
+	float desviacionH = calculateSD(humedades);
+	printf("La desviacion estandar de las temperaturas es: %f\n",desviacionT);
+	printf("La desviacion estandar de las humedades es: %f\n",desviacionH);
+	printf("La temperatura minima es: %d\n",minT);
+	printf("La temperatura maxima es: %d\n",maxT);
+	printf("La humedad minima es: %d\n",minH);
+	printf("La humedad maxima es: %d\n",maxH);
 	close( fd );
 	return 0;	
 }

@@ -90,6 +90,8 @@ int serialport_init(const char* serialport, int baud)
     return fd;
 }
 
+
+
 int serialport_flush(int fd)
 {
     sleep(2); //required to make flush work, for some reason
